@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
@@ -60,5 +61,35 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return redirect()->route('transactions.index')->with('success', 'Transaction deleted successfully.');
+    }
+
+    public function export()
+    {
+        $transactions = Transaction::all(); 
+
+        $fileName = 'transactions.csv';
+
+        $response = new StreamedResponse(function () use ($transactions) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['ID', 'User ID', 'Description', 'Amount', 'Transaction Date']);
+
+            foreach ($transactions as $transaction) {
+                fputcsv($handle, [
+                    $transaction->id,
+                    $transaction->user_id,
+                    $transaction->description,
+                    $transaction->amount,
+                    $transaction->transaction_date,
+                ]);
+            }
+
+            fclose($handle);
+        });
+
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+
+        return $response;
     }
 }

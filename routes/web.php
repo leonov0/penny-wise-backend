@@ -12,3 +12,4 @@ require __DIR__.'/auth.php';
 
 Route::resource('categories', CategoryController::class)->middleware('auth');
 Route::resource('transactions', TransactionController::class)->middleware('auth');
+Route::get('/export-transactions', [TransactionController::class, 'export']);
