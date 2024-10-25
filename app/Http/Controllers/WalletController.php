@@ -178,8 +178,6 @@ class WalletController extends Controller
         ]);
     }
 
-    
-
     public function destroy(Wallet $wallet)
     {
         // Ensure the wallet belongs to the authenticated user
