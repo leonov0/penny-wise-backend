@@ -90,7 +90,7 @@ class WalletController extends Controller
     
             // Return a JSON response with the created wallet and a 201 status
             return response()->json([
-                'wallets' => $wallets,
+                'wallet' => $wallet,
                 'total_balance' => number_format($totalBalance, 2), // Ensure proper formatting to 2 decimal places
                 'currency' => $primaryCurrency,
             ]);
