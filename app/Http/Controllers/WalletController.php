@@ -69,7 +69,12 @@ class WalletController extends Controller
         // Validate the request data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'balance' => 'required|numeric',
+            'balance' => [
+                'required',
+                'numeric',
+                'min:-99999999',
+                'max:99999999',
+            ],
             'currency' => 'required|string|size:3',
         ]);
 
@@ -88,12 +93,28 @@ class WalletController extends Controller
                 $convertedBalance = $this->currencyService->convertForWallet($w->currency, $primaryCurrency, $w->balance);
                 $totalBalance += $convertedBalance;
             }
-
-            return response()->json([
-                'wallet' => $wallet,
-                'total_balance' => round($totalBalance, 2),
-                'currency' => $primaryCurrency,
-            ]);
+          
+            // Загрузите транзакции вместе с категориями
+            $wallet->load('transactions.category');
+        
+            // Преобразуем данные в удобный формат для ответа
+            $walletData = [
+                'id' => $wallet->id,
+                'name' => $wallet->name,
+                'balance' => $wallet->balance,
+                'currency' => $wallet->currency,
+                'transactions' => $wallet->transactions->map(function($transaction) {
+                    return [
+                        'id' => $transaction->id,
+                        'amount' => $transaction->amount,
+                        'currency' => $transaction->currency,
+                        'description' => $transaction->description,
+                        'date' => $transaction->date,
+                        'category_name' => $transaction->category->name ?? 'No Category',
+                    ];
+                }),
+            ];
+            return response()->json($walletData);
 
         } catch (QueryException $e) {
             return response()->json(['error' => 'A wallet with this name already exists'], 409);

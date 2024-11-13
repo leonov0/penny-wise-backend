@@ -82,6 +82,18 @@ class UserController extends Controller
 
     public function getUser(Request $request)
     {
-        return response()->json($request->user());
+        // Get the authenticated user
+        $user = auth()->user();
+
+        // Return user data with primary_currency
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+            'role' => $user->role,
+        ]);
     }
 }

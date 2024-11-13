@@ -43,7 +43,17 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'wallet_id' => 'required|exists:wallets,id',
             'category_name' => 'required|string|max:255',
-            'amount' => 'required|numeric',
+            'amount' => [
+                'required',
+                'numeric',
+                'min:-99999999',
+                'max:99999999',
+                function ($attribute, $value, $fail) {
+                    if ($value == 0) {
+                        $fail('The amount cannot be zero.');
+                    }
+                },
+            ],
             'description' => 'nullable|string',
             'date' => 'required|date',
         ]);
@@ -116,7 +126,17 @@ class TransactionController extends Controller
         $validatedData = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'wallet_id' => 'required|exists:wallets,id',
-            'amount' => 'required|numeric',
+            'amount' => [
+                'required',
+                'numeric',
+                'min:-100000000',
+                'max:100000000',
+                function ($attribute, $value, $fail) {
+                    if ($value == 0) {
+                        $fail('The amount cannot be zero.');
+                    }
+                },
+            ],
             'description' => 'nullable|string',
             'date' => 'required|date',
         ]);
